@@ -88,7 +88,7 @@ public class ImageUtils {
                 bitmap=null;
             }
         }
-        System.gc();
+        imageView.setImageBitmap(null);
     }
 
     /**

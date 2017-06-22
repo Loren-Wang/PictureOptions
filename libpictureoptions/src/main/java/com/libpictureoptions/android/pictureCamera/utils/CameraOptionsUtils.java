@@ -30,8 +30,7 @@ public class CameraOptionsUtils {
     private static SurfaceView surfaceView;
     private final static String TAG = CameraOptionsUtils.class.getName();
     private static Camera camera;//单例摄像头
-//    private static ArrayList<Camera.Size> allPreviewSize;
-
+    private static SurfaceHolder surfaceHolder;
 
     /**
      * @param ctx
@@ -59,7 +58,7 @@ public class CameraOptionsUtils {
         //传入的surfaceView与记录的不相同，那么则重新初始化
         else if(surfaceView != null && surfaceView.equals(view)){
             surfaceView = view;
-            init();
+            cameraOptionsUtils = null;
         }
         if(cameraOptionsUtils == null){
             cameraOptionsUtils = new CameraOptionsUtils();
@@ -69,67 +68,7 @@ public class CameraOptionsUtils {
     }
 
     private CameraOptionsUtils(){
-        init();
-//        allPreviewSize = new ArrayList<>();
-//        Camera.Size size;
-//        size = camera.new Size(1280,960);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(960,1280);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(1600,1200);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(1200,1600);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(2048,1536);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(1536,2048);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(2592,1456);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(1456,2592);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(2593,1936);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(1936,2593);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(176,144);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(144,176);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(320,240);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(240,320);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(352,288);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(288,352);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(640,480);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(480,640);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(720,480);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(480,720);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(720,576);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(576,720);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(848,480);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(480,848);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(1280,720);
-//        allPreviewSize.add(size);
-//        size = camera.new Size(720,1280);
-//        allPreviewSize.add(size);
-    }
-
-    /**
-     * 初始化配置信息
-     */
-    private static void init(){
+        //初始化配置信息
         if(surfaceView != null) {
             SurfaceHolder holder = surfaceView.getHolder();
             holder.addCallback(surfaceViewCallback);//设置默认的surfaceview的回调
@@ -138,7 +77,6 @@ public class CameraOptionsUtils {
             holder.setKeepScreenOn(true);
         }
     }
-
 
     /**
      * 开启默认的摄像头
@@ -196,15 +134,59 @@ public class CameraOptionsUtils {
     public static Camera getCamera() {
         return camera;
     }
+    public static SurfaceHolder getSurfaceHolder() {
+        return surfaceHolder;
+    }
 
     public void resetCamera(){
+        surfaceHolder = null;
         initCamera();
     }
+
+    /**
+     * 初始化相机参数
+     */
+    private static void initCamera(){
+        if(camera == null){
+            return;
+        }
+        try {
+            //为了适配部分手机setparams失败的问题，失败则不设置
+            try {//为了解决预览变形问题
+                Camera.Parameters parameters = camera.getParameters();
+                Point bestPreviewSizeValue1 = findBestPreviewSizeValue(parameters.getSupportedPreviewSizes());
+                parameters.setPreviewSize(bestPreviewSizeValue1.x,bestPreviewSizeValue1.y);
+                camera.setParameters(parameters);
+            }catch (Exception e){
+                LogUtils.logE(TAG,"set parameters fail");
+            }
+
+
+            //进行横竖屏判断然后对图像进行校正
+            //如果是竖屏
+            if(context.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
+                camera.setDisplayOrientation(90);
+            }else {//如果是横屏
+                camera.setDisplayOrientation(0);
+            }
+            //开启预览
+            camera.startPreview();
+            // 2如果要实现连续的自动对焦，这一句必须加
+            camera.cancelAutoFocus();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            camera.release();
+            camera = null;
+        }
+    }
+
 
     /**
      * 关闭停止并释放摄像头
      */
     public void closeCamera(){
+        surfaceHolder = null;
         if(camera != null){
             //停止预览
             camera.stopPreview();
@@ -220,11 +202,91 @@ public class CameraOptionsUtils {
      */
     public static void touchFocus(){
         if(camera != null){
-            camera.autoFocus(autoFocusCallback);
+            try {
+                camera.autoFocus(autoFocusCallback);
+            }catch (Exception e){
+
+            }
         }
     }
 
 
+    /**
+     * 设置surfaceview参数回调
+     */
+    private static SurfaceHolder.Callback surfaceViewCallback = new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            surfaceHolder = holder;
+            try {
+                //设置显示参数
+                camera.setPreviewDisplay(holder);
+                initCamera();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            surfaceHolder = holder;
+            //设置自动对焦
+            //可以自动对焦
+            if(camera != null && camera.getParameters() != null && camera.getParameters().getFocusMode().equals(Camera.Parameters.FOCUS_MODE_AUTO)){
+                camera.autoFocus(autoFocusCallback);
+            }
+
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            surfaceHolder = holder;
+        }
+    };
+
+    //自动对焦回调
+    private static Camera.AutoFocusCallback autoFocusCallback = new Camera.AutoFocusCallback() {
+        /**
+         *
+         * @param success success为true表示对焦成功，改变对焦状态图像
+         * @param camera
+         */
+        @Override
+        public void onAutoFocus(boolean success, Camera camera) {
+            if(success && camera != null){
+                initCamera();
+                camera.cancelAutoFocus();//只有加上了这一句，才会自动对焦。
+            }
+        }
+    };
+
+    /**
+     * 通过对比得到与宽高比最接近的尺寸（如果有相同尺寸，优先选择）
+     * @return 得到与原宽高比例最接近的尺寸
+     */
+    public static Point findBestPreviewSizeValue(List<Camera.Size> sizeList){
+        int bestX = 0;
+        int bestY = 0;
+        int size = 0;
+        for (Camera.Size nowSize : sizeList){
+            int newX = nowSize.width;
+            int newY = nowSize.height;
+            int newSize = Math.abs(newX * newX) + Math.abs(newY * newY);
+            float ratio = (float) (newY * 1.0 / newX);
+            if(newSize >= size && ratio != 0.75){//确保图片是16:9
+                bestX  = newX;
+                bestY = newY;
+                size = newSize;
+            }else if(newSize < size){
+                continue;
+            }
+        }
+        if(bestX > 0 && bestY > 0){
+            return new Point(bestX,bestY);
+        }
+        return null;
+
+    }
 
     /**
      * 开启拍照回调，回调顺序 originalPictureDataCallback--》shutterCallback--》zoomPictureDataCallback--》jpegPictureDataCallback
@@ -247,154 +309,32 @@ public class CameraOptionsUtils {
 
     }
 
-
-    /**
-     * 初始化相机参数
-     */
-    private static void initCamera(){
-        if(camera == null){
-            return;
-        }
-        try {
-//            //不设置camera的params，默认的params参数就够
-//            Camera.Parameters parameters = camera.getParameters();
-//            camera.setParameters(parameters);
-
-            Camera.Parameters parameters = camera.getParameters();
-            parameters.setPreviewSize(1080,1080);
-            camera.setParameters(parameters);
-            camera.startPreview();
-
-            //进行横竖屏判断然后对图像进行校正
-            //如果是竖屏
-            if(context.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
-                camera.setDisplayOrientation(90);
-            }else {//如果是横屏
-                camera.setDisplayOrientation(0);
-            }
-            //开启预览
-            camera.startPreview();
-            // 2如果要实现连续的自动对焦，这一句必须加
-            camera.cancelAutoFocus();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            camera.release();
-            camera = null;
-        }
-    }
-
-    /**
-     * 设置surfaceview参数回调
-     */
-    private static SurfaceHolder.Callback surfaceViewCallback = new SurfaceHolder.Callback() {
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            try {
-                //设置显示参数
-                camera.setPreviewDisplay(holder);
-                initCamera();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            //设置自动对焦
-            //可以自动对焦
-            if(camera.getParameters().getFocusMode().equals(Camera.Parameters.FOCUS_MODE_AUTO)){
-                camera.autoFocus(autoFocusCallback);
-            }
-
-        }
-
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-
-        }
-    };
-
-    /**
-     * 通过对比得到与宽高比最接近的尺寸（如果有相同尺寸，优先选择）
-     *
-     * @param surfaceWidth
-     *            需要被进行对比的原宽
-     * @param surfaceHeight
-     *            需要被进行对比的原高
-     * @param preSizeList
-     *            需要对比的预览尺寸列表
-     * @return 得到与原宽高比例最接近的尺寸
-     */
-    protected static Point findBestPreviewSizeValue(List<Camera.Size> sizeList,Point sceenResolution){
-        int bestX = 0;
-        int bestY = 0;
-        int size = 0;
-        for (Camera.Size nowSize : sizeList){
-//            //如果有符合条件的直接返回
-//            if(nowSize.width ==  )
-            int newX = nowSize.width;
-            int newY = nowSize.height;
-            int newSize = Math.abs(newX * newX) + Math.abs(newY * newY);
-            float ratio = (float) (newY * 1.0 / newX);
-            if(newSize >= size && ratio != 0.75){//确保图片是16:9
-                bestX  = newX;
-                bestY = newY;
-                size = newSize;
-            }else if(newSize < size){
-                continue;
-            }
-        }
-        if(bestX > 0 && bestY > 0){
-            return new Point(bestX,bestY);
-        }
-        return null;
-
-    }
-
-
-    //自动对焦回调
-    private static Camera.AutoFocusCallback autoFocusCallback = new Camera.AutoFocusCallback() {
-        /**
-         *
-         * @param success success为true表示对焦成功，改变对焦状态图像
-         * @param camera
-         */
-        @Override
-        public void onAutoFocus(boolean success, Camera camera) {
-            if(success && camera != null){
-                initCamera();
-                camera.cancelAutoFocus();//只有加上了这一句，才会自动对焦。
-            }
-        }
-    };
-
     //快门按下回调，
     private Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
         @Override
         public void onShutter() {
-            LogUtils.logI(TAG,"Shutter Click");
+            Log.i(TAG,"Shutter Click");
         }
     };
     //原始图像数据
     private Camera.PictureCallback originalPictureDataCallback = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            LogUtils.logI(TAG,"get originalPictureData");
+            Log.i(TAG,"get originalPictureData");
         }
     };
     //缩放和压缩图像数据
     private Camera.PictureCallback zoomPictureDataCallback = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            LogUtils.logI(TAG,"get zoomPictureData");
+            Log.i(TAG,"get zoomPictureData");
         }
     };
     //jpeg图像数据
     private Camera.PictureCallback jpegPictureDataCallback = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            LogUtils.logI(TAG,"get jpegPictureData");
+            Log.i(TAG,"get jpegPictureData");
         }
     };
 

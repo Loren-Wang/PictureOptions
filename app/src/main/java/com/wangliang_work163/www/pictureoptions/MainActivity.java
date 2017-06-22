@@ -1,14 +1,17 @@
 package com.wangliang_work163.www.pictureoptions;
 
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.libpictureoptions.android.pictureCamera.OpenPictureCameraUtils;
+import com.libpictureoptions.android.pictureCamera.PictureCameraConfig;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,19 +41,33 @@ public class MainActivity extends AppCompatActivity {
 //        OpenPictureCompressUtils.compressBitmap();
 //        OpenPictureCompressUtils.compressFile();
 
-//        //调用系统相机，需要先申请权限
-//        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.RECORD_AUDIO},0);
+
+
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 0: {
                 if (grantResults.length > 0 && grantResults.length == permissions.length) {
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                        OpenPictureCameraUtils.openSystemCamera(this, Environment.getExternalStorageDirectory().getPath() + "/PictureSelects/1234.jpg",1);
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED
+                            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+//                        //调用系统相机
+//                        OpenPictureCameraUtils.openSystemCamera(this, Environment.getExternalStorageDirectory().getPath() + "/PictureSelects/1234.jpg",1);
+
+                        //自定义相机
+                        PictureCameraConfig cameraTakePictureConfig = new PictureCameraConfig.Bulid()
+                                .setTakePictureAfterCrop(10,15,10,10)
+                                .setWhetherPreview(true)
+                                .setPictureOrVideoSavePath(Environment.getExternalStorageDirectory().getPath() + "/PictureSelects/1234hh.mp4")
+                                .build(this);
+
+                        OpenPictureCameraUtils.open(this,1,cameraTakePictureConfig);
+
                     }
                 }
             }

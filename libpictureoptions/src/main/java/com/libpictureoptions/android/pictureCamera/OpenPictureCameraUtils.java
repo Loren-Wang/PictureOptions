@@ -69,16 +69,16 @@ public class OpenPictureCameraUtils {
 
 
     private static Context context;
-    private static CameraTakePictureConfig config;
+    private static PictureCameraConfig config;
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    public static void open(Activity ctx, int requestCode, CameraTakePictureConfig pictureSelectConfig){
+    public static void open(Activity ctx, int requestCode, PictureCameraConfig pictureSelectConfig){
         if(ctx == null){
             return;
         }else {
             context = ctx;
         }
         if(pictureSelectConfig == null){
-            config = new CameraTakePictureConfig.Bulid().build(context);
+            config = new PictureCameraConfig.Bulid().build(context);
         }else {
             config = pictureSelectConfig;
         }
@@ -87,9 +87,9 @@ public class OpenPictureCameraUtils {
         ctx.startActivityForResult(intent,requestCode);
     }
 
-    public static CameraTakePictureConfig getConfig() {
+    public static PictureCameraConfig getConfig() {
         if(config == null){
-            config = new CameraTakePictureConfig.Bulid().build(context);
+            config = new PictureCameraConfig.Bulid().build(context);
         }
         return config;
     }

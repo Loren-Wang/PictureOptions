@@ -2,7 +2,6 @@ package com.libpictureoptions.android.common.utils;
 
 import android.util.Log;
 
-import com.libpictureoptions.android.BuildConfig;
 import com.libpictureoptions.android.common.AppCommon;
 
 import java.io.File;
@@ -35,7 +34,7 @@ public final class LogUtils {
 	// ------------------------------------------------------ Fields
 	private static boolean isLoggable;
 	//private static boolean isDebuggable = Settings.isDebuggable;
-	private static boolean isDebuggable = BuildConfig.LOG_DEBUG;
+	private static boolean isDebuggable = true;
 
 	// ------------------------------------------------------ Public Methods
 
