@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">图片选择</string>
+    <string name="send">发送</string>
+    <string name="preview">预览</string>
+    <string name="select">选择</string>
+    <string name="original_picture">原图</string>
+    <string name="title_activity_picture_preview">PicturePreviewActivity</string>
+    <string name="toast_hint_exceed_max_selected_num">选择数量不得大于最大选择数量</string>
+    <string name="toast_hint_no_select_picture">还没有选择图片</string>
+    <string name="open_light">闪光灯</string>
+    <string name="confirm">确认</string>
+    <string name="cancel">取消</string>
+    <string name="take_picture">拍照</string>
+</resources>

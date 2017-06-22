@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.zhy.android.percent.support.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_widthPercent="100%w"
+        app:layout_heightPercent="100%w"
+        android:scaleType="center"
+        />
+
+    <ImageView
+        android:id="@+id/imageViewSelectState"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_widthPercent="12%sw"
+        app:layout_heightPercent="12%sw"
+        android:scaleType="fitEnd"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/icon_picture_select_n" />
+
+</com.zhy.android.percent.support.PercentRelativeLayout>

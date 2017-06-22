@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:minWidth="10000dp">
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vpgShow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </android.support.v4.view.ViewPager>
+
+    <com.zhy.android.percent.support.PercentRelativeLayout
+        android:id="@+id/relPreviewActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/blue">
+
+        <ImageView
+            android:id="@+id/imgPreviewBack"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_widthPercent="10%w"
+            app:layout_heightPercent="10%w"
+            android:src="@drawable/arrow_left"
+            android:layout_centerVertical="true"/>
+
+        <Button
+            android:id="@+id/btnPreviewSend"
+            style="@style/defaule_button_style"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_heightPercent="7%w"
+            app:layout_minWidthPercent="15%w"
+            android:background="@drawable/ju_xing_orange"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            app:layout_marginRightPercent="3%w"
+            app:layout_paddingRightPercent="3%w"
+            app:layout_paddingLeftPercent="3%w"
+            android:gravity="center"
+            android:text="@string/send"
+            />
+
+    </com.zhy.android.percent.support.PercentRelativeLayout>
+
+    <com.zhy.android.percent.support.PercentRelativeLayout
+        android:id="@+id/relPreviewBottomOptions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/blue"
+        android:layout_alignParentBottom="true">
+
+        <CheckBox
+            android:id="@+id/cbOriginalPicture"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_heightPercent="15%w"
+            android:layout_centerVertical="true"
+            app:layout_paddingLeftPercent="3%w"
+            android:text="@string/original_picture"
+            android:textColor="@color/white"/>
+
+
+
+        <CheckBox
+            android:id="@+id/cbPreviewSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_heightPercent="15%w"
+            android:layout_centerVertical="true"
+            android:text="@string/select"
+            android:textColor="@color/white"
+            android:layout_alignParentRight="true"
+            app:layout_paddingRightPercent="3%w"/>
+
+
+    </com.zhy.android.percent.support.PercentRelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,31 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+
+
+    <dimen name="common_dp_0.1">1dp</dimen>
+    <dimen name="common_dp_0.2">2dp</dimen>
+    <dimen name="common_dp_0.5">5dp</dimen>
+    <dimen name="common_dp_1">10dp</dimen>
+    <dimen name="common_dp_1.5">15dp</dimen>
+    <dimen name="common_dp_2">20dp</dimen>
+    <dimen name="common_dp_3">30dp</dimen>
+    <dimen name="common_dp_4">40dp</dimen>
+
+    <dimen name="default_drawable_biankuang_juxing_radius">4dp</dimen>
+    <dimen name="default_drawable_stroke_width">1dp</dimen>
+
+    <dimen name="welcome_dian_marginbottom">30dp</dimen>
+    <dimen name="line_width_or_height">0.5dp</dimen>
+
+    <dimen name="car_info_fuel_consumption_and_kilometer_and_velocity_detail_num">20sp</dimen>
+
+
+    <!--气泡宽高-->
+    <dimen name="Bubble_arrow_width">5dp</dimen>
+    <dimen name="Bubble_arrow_height">5dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+</resources>
