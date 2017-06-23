@@ -39,6 +39,12 @@
             android:layout_alignParentLeft="true"
             android:text="@string/video"/>
 
+        <com.libpictureoptions.android.pictureCamera.view.WxTakePictureOrVideoView
+            android:id="@+id/wxView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@color/white"/>
+
     </com.zhy.android.percent.support.PercentRelativeLayout>
 
     <RelativeLayout

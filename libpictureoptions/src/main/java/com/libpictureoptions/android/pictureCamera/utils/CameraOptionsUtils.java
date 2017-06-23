@@ -139,7 +139,6 @@ public class CameraOptionsUtils {
     }
 
     public void resetCamera(){
-        surfaceHolder = null;
         initCamera();
     }
 
@@ -180,6 +179,7 @@ public class CameraOptionsUtils {
             camera = null;
         }
     }
+
 
 
     /**

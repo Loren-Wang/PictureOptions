@@ -11,6 +11,7 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 import com.libpictureoptions.android.common.utils.LogUtils;
+import com.libpictureoptions.android.pictureCamera.interface_and_abstract.VideoTranscribeStatueCallBack;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class CameraVideoUtils {
     private static boolean whetherStartVideoPlay = false;//是否已经开始播放录像
     private static MediaRecorder mRecorder;//录像使用的
     private static boolean whetherStartVideoTranscribe = false;//是否已经开始录像
+    private static VideoTranscribeStatueCallBack videoTranscribeStatueCallBack;//录像状态回调，每次回调（停止方法）完成之后需要清除掉回调对象
 
     /**
      * 获取是否已经开始录像
@@ -47,8 +49,10 @@ public class CameraVideoUtils {
     /**
      * 开启视频录制
      * @param savePath
+     * @param maxDuration 最大录制时间
      */
-    public synchronized static void startVideoTranscribe(String savePath){
+    public synchronized static void startVideoTranscribe(String savePath
+            ,Integer maxDuration,VideoTranscribeStatueCallBack callBack){
         if(savePath != null && !"".equals(savePath) && !whetherStartVideoTranscribe){
             File file = new File(savePath);
             if(!file.getParentFile().exists()){
@@ -57,23 +61,35 @@ public class CameraVideoUtils {
             Camera camera = CameraOptionsUtils.getCamera();
             SurfaceHolder mSurfaceHolder = CameraOptionsUtils.getSurfaceHolder();
             if (camera != null && mSurfaceHolder != null) {
+                videoTranscribeStatueCallBack = callBack;
                 mRecorder = new MediaRecorder();
                 camera.unlock();
                 mRecorder.setCamera(camera);
                 mRecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
                 mRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);//输出编码格式
                 mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);//输入源
+                mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
+                if(maxDuration != null && maxDuration != 0) {
+                    mRecorder.setMaxDuration(maxDuration);
+                }
+                mRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+                    @Override
+                    public void onInfo(MediaRecorder mr, int what, int extra) {
+                        //录制完成则停止录制
+                        if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+                            closeVideoTranscribe();
+                        }
+                    }
+                });
+                mRecorder.setOrientationHint(90);// 输出旋转90度，保持竖屏录制
+                mRecorder.setOutputFile(savePath);//输出目标文件
                 //setOutputFormat、setAudioEncoder、setVideoEncoder 与 setProfile 不能同时使用，否则会报错
 //                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);// 音频格式
 //                mRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);// 视频录制格式
 //                mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);//输出格式
-                mRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
-
                 //以下两个参数还是不要设置了，录像和拍照的界面设置全屏，否则会出现空白部分
 //                mRecorder.setVideoSize(1920,1080);//设置最佳分辨率
 //                mRecorder.setVideoEncodingBitRate(1 * 1024 * 1024);//帧频率
-                mRecorder.setOrientationHint(90);// 输出旋转90度，保持竖屏录制
-                mRecorder.setOutputFile(savePath);//输出目标文件
                 Log.d(TAG, "bf mRecorder.prepare()" );
                 try {
                     mRecorder.prepare();
@@ -86,6 +102,10 @@ public class CameraVideoUtils {
                     mRecorder.start();   // Recording is now started
                     Log.d(TAG, "af mRecorder.start()" );
                     whetherStartVideoTranscribe = true;
+                    //回调信息
+                    if(videoTranscribeStatueCallBack != null){
+                        videoTranscribeStatueCallBack.startVideoTranscribeAnd();
+                    }
                 }catch (Exception e) {
                     LogUtils.logD(TAG,"");
                 }
@@ -104,6 +124,10 @@ public class CameraVideoUtils {
                 mRecorder.reset();
                 mRecorder = null;
                 whetherStartVideoTranscribe = false;
+                if(videoTranscribeStatueCallBack != null){
+                    videoTranscribeStatueCallBack.stopVideoTranscribeAnd();
+                    videoTranscribeStatueCallBack = null;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

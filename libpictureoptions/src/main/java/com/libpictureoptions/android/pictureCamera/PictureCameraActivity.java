@@ -20,6 +20,7 @@ import com.libpictureoptions.android.common.utils.LogUtils;
 import com.libpictureoptions.android.common.utils.imageOptions.ImageUtils;
 import com.libpictureoptions.android.pictureCamera.utils.CameraOptionsUtils;
 import com.libpictureoptions.android.pictureCamera.utils.CameraVideoUtils;
+import com.libpictureoptions.android.pictureCamera.view.WxTakePictureOrVideoView;
 
 import java.io.File;
 
@@ -155,7 +156,10 @@ public class PictureCameraActivity extends BaseActivity {
                 config.getCancelVideoPreviewClickListener().setOnClickListener(cancelVideoPreviewClickListener);
             }
         }
-
+        ((WxTakePictureOrVideoView)findViewById(R.id.wxView)).setSavePictureOrVideoPath(config.getPictureOrVideoSavePath());
+        ((WxTakePictureOrVideoView)findViewById(R.id.wxView)).setTakePictureCallbackAndSufaceView(
+                mpreview,
+                null,null,null,jpegPictureDataCallback);
 
         //获取相机权限并开启摄像头
         perissionRequest(new String[]{Manifest.permission.CAMERA});
@@ -305,7 +309,7 @@ public class PictureCameraActivity extends BaseActivity {
                 CameraVideoUtils.closeVideoTranscribe();
                 showVideoPreview();
             }else {
-                CameraVideoUtils.startVideoTranscribe(config.getPictureOrVideoSavePath());
+                CameraVideoUtils.startVideoTranscribe(config.getPictureOrVideoSavePath(), null,null);
             }
         }
     };
