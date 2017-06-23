@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 
-import com.libpictureoptions.android.common.utils.DialogUtils;
 import com.libpictureoptions.android.pictureCamera.interface_and_abstract.VideoTranscribeStatueCallBack;
 import com.libpictureoptions.android.pictureCamera.utils.CameraOptionsUtils;
 import com.libpictureoptions.android.pictureCamera.utils.CameraVideoUtils;
@@ -19,7 +18,8 @@ import com.libpictureoptions.android.pictureCamera.utils.CameraVideoUtils;
  * Created by wangliang on 0023/2017/6/23.
  * 创建时间： 0023/2017/6/23 10:13
  * 创建人：王亮（Loren wang）
- * 功能作用：仿微信的点击拍照长按录制小视频的按钮控件
+ * 功能作用：仿微信的点击拍照长按录制小视频的按钮控件，如果要使用这种控件的话需要继承该控件，
+ * 该控件内的方法所有方法都不要动，尤其是触摸的事件分发，否则不一定会有什么反应，在调用方法上依旧使用config调用，其他方式调用容易出错
  * 思路：
  * 修改人：
  * 修改时间：
@@ -72,6 +72,16 @@ public class WxTakePictureOrVideoView extends View{
         };
     }
 
+    public WxTakePictureOrVideoView setLongPressMaxTimeGoToVideo(Integer longPressMaxTimeGoToVideo) {
+        this.longPressMaxTimeGoToVideo = longPressMaxTimeGoToVideo;
+        return this;
+    }
+
+    public WxTakePictureOrVideoView setVideoMaxTime(Integer videoMaxTime) {
+        this.videoMaxTime = videoMaxTime;
+        return this;
+    }
+
     public WxTakePictureOrVideoView setSavePictureOrVideoPath(String savePictureOrVideoPath) {
         this.savePictureOrVideoPath = savePictureOrVideoPath;
         return this;
@@ -109,13 +119,16 @@ public class WxTakePictureOrVideoView extends View{
             case MotionEvent.ACTION_UP:
                 //先移除计时器
                 handler.removeCallbacks(gotoVideoTimekeepingRunnable);
-                //停止录制视频
-                stopVideo();
-                //判断是否是要去拍照
-                if(Math.abs(downX - event.getRawX()) < 20
-                        && Math.abs(downY - event.getRawY()) < 20
-                        && !whetherVideotaping){
-                    takePicture();
+                if(whetherVideotaping) {
+                    //停止录制视频
+                    stopVideo();
+                }else {
+                    //判断是否是要去拍照
+                    if (Math.abs(downX - event.getRawX()) < 20
+                            && Math.abs(downY - event.getRawY()) < 20
+                            && !whetherVideotaping) {
+                        takePicture();
+                    }
                 }
                 downX = 0f;
                 downY = 0f;
@@ -159,7 +172,6 @@ public class WxTakePictureOrVideoView extends View{
 
                 @Override
                 public void onProgress(Double progress) {
-                    DialogUtils.showToastShort(context,progress + "");
                     if(videoTranscribeStatueCallBack != null){
                         videoTranscribeStatueCallBack.onProgress(progress);
                     }

@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                         PictureCameraConfig cameraTakePictureConfig = new PictureCameraConfig.Bulid()
                                 .setTakePictureAfterCrop(10,15,10,10)
                                 .setWhetherPreview(true)
+                                .setVideoMaxTime(30000)
                                 .setPictureOrVideoSavePath(Environment.getExternalStorageDirectory().getPath() + "/PictureSelects/1234hh.mp4")
                                 .build(this);
 

@@ -6,6 +6,8 @@ import android.widget.ImageView;
 
 import com.libpictureoptions.android.common.utils.SystemInfoUtils;
 import com.libpictureoptions.android.pictureCamera.interface_and_abstract.CameraPictureViewOnClickListener;
+import com.libpictureoptions.android.pictureCamera.interface_and_abstract.VideoTranscribeStatueCallBack;
+import com.libpictureoptions.android.pictureCamera.view.WxTakePictureOrVideoView;
 
 import java.io.Serializable;
 
@@ -37,6 +39,7 @@ public class PictureCameraConfig implements Serializable{
     private View takePicturePreviewView;//拍照预览界面上层视图
     private ImageView imgPreview;//拍照之后的生成的图片的预览控件，作用于有特殊操作的时候使用,如果传递该控件则将该控件同时替换，否则不替换该控件
     private View videoPreviewView;//录像预览界面上层视图
+    private WxTakePictureOrVideoView wxTakePictureOrVideoView;//仿微信的可替换视图
 
     //点击事件
     private CameraPictureViewOnClickListener takePictureClickListener;//拍照点击事件回调
@@ -46,6 +49,11 @@ public class PictureCameraConfig implements Serializable{
     private CameraPictureViewOnClickListener confirmTakePicturePreviewClickListener;//确定拍照预览点击事件回调
     private CameraPictureViewOnClickListener cancelVideoPreviewClickListener;//取消录像点击预览
     private CameraPictureViewOnClickListener confirmVideoPreviewClickListener;//确定录像点击预览
+
+    //仿微信录制小视频按钮设置
+    private Integer videoMaxTime;//视频录制的最大时间
+    private Integer longPressMaxTimeGoToVideo = 500;//长按最大的时间算是去录制算是长按录制，默认是2000毫秒的长按就去录制视屏
+    private VideoTranscribeStatueCallBack videoTranscribeStatueCallBack;//传入的视频录制回调
 
     public PictureCameraConfig(Bulid bulid, Context context) {
         this.context = context;
@@ -61,6 +69,7 @@ public class PictureCameraConfig implements Serializable{
         this.takePicturePreviewView = bulid.takePicturePreviewView;
         this.imgPreview = bulid.imgPreview;
         this.videoPreviewView = bulid.videoPreviewView;
+        this.wxTakePictureOrVideoView = bulid.wxTakePictureOrVideoView;
 
         this.takePictureClickListener = bulid.takePictureClickListener;
         this.videoClickListener = bulid.videoClickListener;
@@ -69,6 +78,10 @@ public class PictureCameraConfig implements Serializable{
         this.confirmTakePicturePreviewClickListener = bulid.confirmTakePicturePreviewClickListener;
         this.cancelVideoPreviewClickListener = bulid.cancelVideoPreviewClickListener;
         this.confirmVideoPreviewClickListener = bulid.confirmVideoPreviewClickListener;
+
+        this.videoMaxTime = bulid.videoMaxTime;
+        this.longPressMaxTimeGoToVideo = bulid.longPressMaxTimeGoToVideo;
+        this.videoTranscribeStatueCallBack = bulid.videoTranscribeStatueCallBack;
     }
 
     public static class Bulid{
@@ -86,6 +99,7 @@ public class PictureCameraConfig implements Serializable{
         private View takePicturePreviewView;//拍照预览界面上层视图
         private ImageView imgPreview;//拍照之后的生成的图片的预览控件，作用于有特殊操作的时候使用,如果传递该控件则将该控件同时替换，否则不替换该控件
         private View videoPreviewView;//录像预览界面上层视图
+        private WxTakePictureOrVideoView wxTakePictureOrVideoView;//仿微信的可替换视图
 
         //点击事件
         private CameraPictureViewOnClickListener takePictureClickListener;//拍照点击事件回调
@@ -95,6 +109,11 @@ public class PictureCameraConfig implements Serializable{
         private CameraPictureViewOnClickListener confirmTakePicturePreviewClickListener;//确定拍照预览点击事件回调
         private CameraPictureViewOnClickListener cancelVideoPreviewClickListener;//取消录像点击预览
         private CameraPictureViewOnClickListener confirmVideoPreviewClickListener;//确定录像点击预览
+
+        //仿微信录制小视频按钮设置
+        private Integer videoMaxTime;//视频录制的最大时间
+        private Integer longPressMaxTimeGoToVideo = 500;//长按最大的时间算是去录制算是长按录制，默认是2000毫秒的长按就去录制视屏
+        private VideoTranscribeStatueCallBack videoTranscribeStatueCallBack;//传入的视频录制回调
 
         public Bulid setTakePictureAfterCrop(int takePictureAfterCropLeftPercentForBitmapWidth, int takePictureAfterCropTopPercentForBitmapHeight,
                                              int takePictureAfterCropRightPercentForBitmapWidth, int takePictureAfterCropBottomPercentForBitmapHeight){
@@ -167,6 +186,26 @@ public class PictureCameraConfig implements Serializable{
 
         public Bulid setConfirmVideoPreviewClickListener(CameraPictureViewOnClickListener confirmVideoPreviewClickListener) {
             this.confirmVideoPreviewClickListener = confirmVideoPreviewClickListener;
+            return this;
+        }
+
+        public Bulid setWxTakePictureOrVideoView(WxTakePictureOrVideoView wxTakePictureOrVideoView) {
+            this.wxTakePictureOrVideoView = wxTakePictureOrVideoView;
+            return this;
+        }
+
+        public Bulid setVideoMaxTime(Integer videoMaxTime) {
+            this.videoMaxTime = videoMaxTime;
+            return this;
+        }
+
+        public Bulid setLongPressMaxTimeGoToVideo(Integer longPressMaxTimeGoToVideo) {
+            this.longPressMaxTimeGoToVideo = longPressMaxTimeGoToVideo;
+            return this;
+        }
+
+        public Bulid setVideoTranscribeStatueCallBack(VideoTranscribeStatueCallBack videoTranscribeStatueCallBack) {
+            this.videoTranscribeStatueCallBack = videoTranscribeStatueCallBack;
             return this;
         }
 
@@ -244,4 +283,19 @@ public class PictureCameraConfig implements Serializable{
         return confirmVideoPreviewClickListener;
     }
 
+    public WxTakePictureOrVideoView getWxTakePictureOrVideoView() {
+        return wxTakePictureOrVideoView;
+    }
+
+    public Integer getVideoMaxTime() {
+        return videoMaxTime;
+    }
+
+    public Integer getLongPressMaxTimeGoToVideo() {
+        return longPressMaxTimeGoToVideo;
+    }
+
+    public VideoTranscribeStatueCallBack getVideoTranscribeStatueCallBack() {
+        return videoTranscribeStatueCallBack;
+    }
 }

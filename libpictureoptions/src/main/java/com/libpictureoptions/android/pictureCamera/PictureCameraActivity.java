@@ -16,8 +16,10 @@ import android.widget.VideoView;
 
 import com.libpictureoptions.android.R;
 import com.libpictureoptions.android.common.BaseActivity;
+import com.libpictureoptions.android.common.utils.DialogUtils;
 import com.libpictureoptions.android.common.utils.LogUtils;
 import com.libpictureoptions.android.common.utils.imageOptions.ImageUtils;
+import com.libpictureoptions.android.pictureCamera.interface_and_abstract.VideoTranscribeStatueCallBack;
 import com.libpictureoptions.android.pictureCamera.utils.CameraOptionsUtils;
 import com.libpictureoptions.android.pictureCamera.utils.CameraVideoUtils;
 import com.libpictureoptions.android.pictureCamera.view.WxTakePictureOrVideoView;
@@ -40,6 +42,7 @@ public class PictureCameraActivity extends BaseActivity {
     private VideoView videoView;//视频预览控件
     private Button btnVideoPreviewCancel;//取消预览视频
     private Button btnVideoPreviewConfirm;//确认预览视频
+    private WxTakePictureOrVideoView wxTakePictureOrVideoView;
 
     private boolean whetherFlashlightOpen = false;//当前是否开启了闪光灯
     private PictureCameraConfig config;//配置文件
@@ -63,6 +66,7 @@ public class PictureCameraActivity extends BaseActivity {
         videoView = (VideoView) findViewById(R.id.videoView);//视频预览控件
         btnVideoPreviewCancel = (Button) findViewById(R.id.btnVideoPreviewCancel);//取消预览视频
         btnVideoPreviewConfirm = (Button) findViewById(R.id.btnVideoPreviewConfirm);//确认预览视频
+        wxTakePictureOrVideoView = (WxTakePictureOrVideoView) findViewById(R.id.wxView);//确认预览视频
 
 
 
@@ -155,11 +159,42 @@ public class PictureCameraActivity extends BaseActivity {
             if(config.getCancelVideoPreviewClickListener() != null){
                 config.getCancelVideoPreviewClickListener().setOnClickListener(cancelVideoPreviewClickListener);
             }
+            //确定仿微信控件的view
+            if(config.getWxTakePictureOrVideoView() != null){
+                wxTakePictureOrVideoView = config.getWxTakePictureOrVideoView();
+            }
+
+            //仿微信小视频控件的方法
+            wxTakePictureOrVideoView.setSavePictureOrVideoPath(config.getPictureOrVideoSavePath());
+            wxTakePictureOrVideoView.setTakePictureCallbackAndSufaceView(mpreview, null,null,null,jpegPictureDataCallback);
+            wxTakePictureOrVideoView.setVideoMaxTime(config.getVideoMaxTime());
+            wxTakePictureOrVideoView.setLongPressMaxTimeGoToVideo(config.getLongPressMaxTimeGoToVideo());
+            wxTakePictureOrVideoView.setVideoTranscribeStatueCallBack(new VideoTranscribeStatueCallBack(null) {
+                @Override
+                public void start() {
+                    if(config.getVideoTranscribeStatueCallBack() != null) {
+                        config.getVideoTranscribeStatueCallBack().start();
+                    }
+                }
+
+                @Override
+                public void stop() {
+                    if(config.getVideoTranscribeStatueCallBack() != null) {
+                        config.getVideoTranscribeStatueCallBack().stop();
+                    }
+                    showVideoPreview();
+                }
+
+                @Override
+                public void onProgress(Double progress) {
+                    DialogUtils.showToastShort(getContext(),progress + "");
+                    if(config.getVideoTranscribeStatueCallBack() != null) {
+                        config.getVideoTranscribeStatueCallBack().onProgress(progress);
+                    }
+                }
+            });
         }
-        ((WxTakePictureOrVideoView)findViewById(R.id.wxView)).setSavePictureOrVideoPath(config.getPictureOrVideoSavePath());
-        ((WxTakePictureOrVideoView)findViewById(R.id.wxView)).setTakePictureCallbackAndSufaceView(
-                mpreview,
-                null,null,null,jpegPictureDataCallback);
+
 
         //获取相机权限并开启摄像头
         perissionRequest(new String[]{Manifest.permission.CAMERA});
@@ -215,10 +250,10 @@ public class PictureCameraActivity extends BaseActivity {
                         config.getTakePictureAfterCropWidth(),
                         config.getTakePictureAfterCropHeight());
             }
+            setClickEnabledStates(true);
+            showTakePicturePreview();
             nowTakePictureAfterBitmap = Bitmap.createBitmap(bitmap);
             imgTakePicturePreview.setImageBitmap(bitmap);
-            setClickEnabledStates(true);
-            relTakePicturePreviewOptions.setVisibility(View.VISIBLE);
         }
     };
     //开启闪关灯点击事件
