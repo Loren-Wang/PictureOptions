@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                         //自定义相机
                         PictureCameraConfig cameraTakePictureConfig = new PictureCameraConfig.Bulid()
                                 .setTakePictureAfterCrop(10,15,10,10)
-                                .setWhetherPreview(true)
+                                .setWhetherPreview(false)
                                 .setVideoMaxTime(30000)
                                 .setPictureOrVideoSavePath(Environment.getExternalStorageDirectory().getPath() + "/PictureSelects/1234hh.mp4")
                                 .build(this);

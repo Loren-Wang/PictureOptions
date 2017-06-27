@@ -35,8 +35,8 @@ public abstract class VideoTranscribeStatueCallBack {
                     progress = recordedTime * 1.0 / maxTime;
                     if(progress <= 1) {
                         onProgress(recordedTime * 1.0 / maxTime);
-                        recordedTime += 1000;
-                        handler.postDelayed(this,1000);
+                        recordedTime += 50;
+                        handler.postDelayed(this,50);
                     }
                 }
             };

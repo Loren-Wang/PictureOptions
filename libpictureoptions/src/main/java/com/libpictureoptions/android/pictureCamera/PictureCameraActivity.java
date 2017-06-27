@@ -16,7 +16,6 @@ import android.widget.VideoView;
 
 import com.libpictureoptions.android.R;
 import com.libpictureoptions.android.common.BaseActivity;
-import com.libpictureoptions.android.common.utils.DialogUtils;
 import com.libpictureoptions.android.common.utils.LogUtils;
 import com.libpictureoptions.android.common.utils.imageOptions.ImageUtils;
 import com.libpictureoptions.android.pictureCamera.interface_and_abstract.VideoTranscribeStatueCallBack;
@@ -66,7 +65,7 @@ public class PictureCameraActivity extends BaseActivity {
         videoView = (VideoView) findViewById(R.id.videoView);//视频预览控件
         btnVideoPreviewCancel = (Button) findViewById(R.id.btnVideoPreviewCancel);//取消预览视频
         btnVideoPreviewConfirm = (Button) findViewById(R.id.btnVideoPreviewConfirm);//确认预览视频
-        wxTakePictureOrVideoView = (WxTakePictureOrVideoView) findViewById(R.id.wxView);//确认预览视频
+        wxTakePictureOrVideoView = (WxTakePictureOrVideoView) findViewById(R.id.wxUiView);//确认预览视频
 
 
 
@@ -169,7 +168,7 @@ public class PictureCameraActivity extends BaseActivity {
             wxTakePictureOrVideoView.setTakePictureCallbackAndSufaceView(mpreview, null,null,null,jpegPictureDataCallback);
             wxTakePictureOrVideoView.setVideoMaxTime(config.getVideoMaxTime());
             wxTakePictureOrVideoView.setLongPressMaxTimeGoToVideo(config.getLongPressMaxTimeGoToVideo());
-            wxTakePictureOrVideoView.setVideoTranscribeStatueCallBack(new VideoTranscribeStatueCallBack(null) {
+            wxTakePictureOrVideoView.addVideoTranscribeStatueCallBack(new VideoTranscribeStatueCallBack(null) {
                 @Override
                 public void start() {
                     if(config.getVideoTranscribeStatueCallBack() != null) {
@@ -187,7 +186,6 @@ public class PictureCameraActivity extends BaseActivity {
 
                 @Override
                 public void onProgress(Double progress) {
-                    DialogUtils.showToastShort(getContext(),progress + "");
                     if(config.getVideoTranscribeStatueCallBack() != null) {
                         config.getVideoTranscribeStatueCallBack().onProgress(progress);
                     }
@@ -383,11 +381,13 @@ public class PictureCameraActivity extends BaseActivity {
      * 显示拍照预览界面
      */
     private void showTakePicturePreview(){
-        relCameraOptions.setVisibility(View.GONE);
-        relVideoPreviewOptions.setVisibility(View.GONE);
-        relTakePicturePreviewOptions.setVisibility(View.VISIBLE);
-        ImageUtils.getInstance(getContext()).releaseImageViewResouce(imgTakePicturePreview);//释放控件图片资源
-        ImageUtils.getInstance(getContext()).releaseBitmap(nowTakePictureAfterBitmap);//释放暂存图片资源
+        if(config != null && config.isWhetherPreview()  && config.getPictureOrVideoSavePath() != null && !"".equals(config.getPictureOrVideoSavePath())) {
+            relCameraOptions.setVisibility(View.GONE);
+            relVideoPreviewOptions.setVisibility(View.GONE);
+            relTakePicturePreviewOptions.setVisibility(View.VISIBLE);
+            ImageUtils.getInstance(getContext()).releaseImageViewResouce(imgTakePicturePreview);//释放控件图片资源
+            ImageUtils.getInstance(getContext()).releaseBitmap(nowTakePictureAfterBitmap);//释放暂存图片资源
+        }
     }
 
     /**
@@ -407,7 +407,7 @@ public class PictureCameraActivity extends BaseActivity {
      * 显示视频拍摄预览界面
      */
     private void showVideoPreview(){
-        if(config != null && config.getPictureOrVideoSavePath() != null && !"".equals(config.getPictureOrVideoSavePath())) {
+        if(config != null && config.isWhetherPreview()  && config.getPictureOrVideoSavePath() != null && !"".equals(config.getPictureOrVideoSavePath())) {
             CameraVideoUtils.playVideoPlay(getContext(), config.getPictureOrVideoSavePath(), videoView, null);
             mpreview.setVisibility(View.GONE);
             relCameraOptions.setVisibility(View.GONE);

@@ -45,6 +45,13 @@
             android:layout_height="50dp"
             android:background="@color/white"/>
 
+        <com.libpictureoptions.android.pictureCamera.view.WxTakePictureOrVideoUIView
+            android:id="@+id/wxUiView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentRight="true"
+            android:background="#0f0"/>
+
     </com.zhy.android.percent.support.PercentRelativeLayout>
 
     <RelativeLayout

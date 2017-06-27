@@ -14,6 +14,9 @@ import com.libpictureoptions.android.pictureCamera.interface_and_abstract.VideoT
 import com.libpictureoptions.android.pictureCamera.utils.CameraOptionsUtils;
 import com.libpictureoptions.android.pictureCamera.utils.CameraVideoUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by wangliang on 0023/2017/6/23.
  * 创建时间： 0023/2017/6/23 10:13
@@ -27,12 +30,13 @@ import com.libpictureoptions.android.pictureCamera.utils.CameraVideoUtils;
  */
 
 public class WxTakePictureOrVideoView extends View{
+    protected static final String TAG = "WxTakePictureOrVideoView";
     private Context context;
-    private Integer videoMaxTime = 60000;//录制视屏的最大时间，单位毫秒，默认值60000毫秒，即60秒
+    protected Integer videoMaxTime = 60000;//录制视屏的最大时间，单位毫秒，默认值60000毫秒，即60秒
     private Integer longPressMaxTimeGoToVideo = 500;//长按最大的时间算是去录制算是长按录制，默认是2000毫秒的长按就去录制视屏
     private String savePictureOrVideoPath;//拍照或者录像之后所保存的地址
     private boolean whetherVideotaping = false;//是否正在录制视频
-    private VideoTranscribeStatueCallBack videoTranscribeStatueCallBack;//传入的视频录制回调
+    private List<VideoTranscribeStatueCallBack> videoTranscribeStatueCallBackList = new ArrayList<>();//传入的视频录制回调
     private SurfaceView surfaceView;//预览窗口
     private Camera.ShutterCallback shutterCallback;//拍照的四个回调之一
     private Camera.PictureCallback originalPictureDataCallback;//拍照的四个回调之一
@@ -87,8 +91,8 @@ public class WxTakePictureOrVideoView extends View{
         return this;
     }
 
-    public WxTakePictureOrVideoView setVideoTranscribeStatueCallBack(VideoTranscribeStatueCallBack videoTranscribeStatueCallBack) {
-        this.videoTranscribeStatueCallBack = videoTranscribeStatueCallBack;
+    public WxTakePictureOrVideoView addVideoTranscribeStatueCallBack(VideoTranscribeStatueCallBack videoTranscribeStatueCallBack) {
+        this.videoTranscribeStatueCallBackList.add(videoTranscribeStatueCallBack);
         return this;
     }
 
@@ -156,8 +160,12 @@ public class WxTakePictureOrVideoView extends View{
                 @Override
                 public void start() {
                     whetherVideotaping = true;
-                    if(videoTranscribeStatueCallBack != null){
-                        videoTranscribeStatueCallBack.start();
+                    if(videoTranscribeStatueCallBackList != null){
+                        for (VideoTranscribeStatueCallBack videoTranscribeStatueCallBack : videoTranscribeStatueCallBackList) {
+                            if(videoTranscribeStatueCallBack != null) {
+                                videoTranscribeStatueCallBack.start();
+                            }
+                        }
                     }
                 }
 
@@ -165,15 +173,23 @@ public class WxTakePictureOrVideoView extends View{
                 public void stop() {
                     stopVideo();
                     whetherVideotaping = false;
-                    if(videoTranscribeStatueCallBack != null){
-                        videoTranscribeStatueCallBack.stop();
+                    if(videoTranscribeStatueCallBackList != null){
+                        for (VideoTranscribeStatueCallBack videoTranscribeStatueCallBack : videoTranscribeStatueCallBackList) {
+                            if(videoTranscribeStatueCallBack != null) {
+                                videoTranscribeStatueCallBack.stop();
+                            }
+                        }
                     }
                 }
 
                 @Override
                 public void onProgress(Double progress) {
-                    if(videoTranscribeStatueCallBack != null){
-                        videoTranscribeStatueCallBack.onProgress(progress);
+                    if(videoTranscribeStatueCallBackList != null){
+                        for (VideoTranscribeStatueCallBack videoTranscribeStatueCallBack : videoTranscribeStatueCallBackList) {
+                            if(videoTranscribeStatueCallBack != null) {
+                                videoTranscribeStatueCallBack.onProgress(progress);
+                            }
+                        }
                     }
                 }
             });
@@ -185,8 +201,12 @@ public class WxTakePictureOrVideoView extends View{
                 && CameraVideoUtils.getWhetherStartVideoTranscribe()){
             CameraVideoUtils.closeVideoTranscribe();
             whetherVideotaping = false;
-            if(videoTranscribeStatueCallBack != null){
-                videoTranscribeStatueCallBack.stop();
+            if(videoTranscribeStatueCallBackList != null){
+                for (VideoTranscribeStatueCallBack videoTranscribeStatueCallBack : videoTranscribeStatueCallBackList) {
+                    if(videoTranscribeStatueCallBack != null) {
+                        videoTranscribeStatueCallBack.stop();
+                    }
+                }
             }
         }
     }
